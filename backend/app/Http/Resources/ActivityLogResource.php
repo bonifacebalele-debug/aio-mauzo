@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ActivityLogResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'action' => $this->action,
+            'description' => $this->description,
+            'subject_type' => $this->subject_type ? class_basename($this->subject_type) : null,
+            'subject_id' => $this->subject_id,
+            'user_name' => $this->user?->name ?? 'System',
+            'ip_address' => $this->ip_address,
+            'created_at' => $this->created_at,
+        ];
+    }
+}

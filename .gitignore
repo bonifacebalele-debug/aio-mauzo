@@ -1,0 +1,22 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# Leftover files from an earlier, unrelated design-system exercise
+# (a third-party commercial "Halo" asset pack) that predate this project
+# and don't belong in the AIO Invoice repo.
+/DESIGN.md
+/LICENSE.md
+/metadata.json
+/css/
+/html/
+/screenshots/
+
+# Safety net: never commit env files regardless of where they end up
+.env
+.env.*
+!*.env.example
