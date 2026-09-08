@@ -26,6 +26,15 @@ export interface User {
   permissions: string[];
 }
 
+export interface UserPayload {
+  name: string;
+  email: string;
+  phone?: string;
+  password?: string;
+  role: string;
+  is_active?: boolean;
+}
+
 export interface Customer {
   id: number;
   company_name: string;

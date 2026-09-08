@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ReferenceDataController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\Settings\CompanyBrandingController;
 use App\Http\Controllers\Api\Settings\CompanySettingsController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -41,6 +42,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/currencies', [ReferenceDataController::class, 'currencies']);
     Route::get('/taxes', [ReferenceDataController::class, 'taxes']);
+    Route::get('/roles', [ReferenceDataController::class, 'roles']);
+
+    Route::apiResource('users', UserController::class);
 
     Route::get('/reports/summary', [ReportController::class, 'periodSummary']);
     Route::get('/reports/{type}/export', [ReportController::class, 'export'])

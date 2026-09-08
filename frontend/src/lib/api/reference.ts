@@ -12,3 +12,9 @@ export async function fetchTaxes(): Promise<Tax[]> {
 
   return data.data;
 }
+
+export async function fetchRoles(): Promise<string[]> {
+  const { data } = await apiClient.get<ApiResponse<string[]>>("/roles");
+
+  return data.data;
+}

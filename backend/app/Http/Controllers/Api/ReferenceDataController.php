@@ -8,6 +8,7 @@ use App\Http\Resources\TaxResource;
 use App\Models\Currency;
 use App\Models\Tax;
 use Illuminate\Http\JsonResponse;
+use Spatie\Permission\Models\Role;
 
 class ReferenceDataController extends Controller
 {
@@ -22,6 +23,13 @@ class ReferenceDataController extends Controller
     {
         return response()->json([
             'data' => TaxResource::collection(Tax::query()->where('is_active', true)->orderBy('rate')->get()),
+        ]);
+    }
+
+    public function roles(): JsonResponse
+    {
+        return response()->json([
+            'data' => Role::query()->orderBy('name')->pluck('name'),
         ]);
     }
 }
