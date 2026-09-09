@@ -96,7 +96,7 @@ export function InvoicePrintPreview({ invoice, company }: { invoice: Invoice; co
             <span>−{formatMoney(invoice.discount_total, symbol)}</span>
           </div>
           <div className="flex justify-between text-gray-600">
-            <span>Tax</span>
+            <span>VAT</span>
             <span>{formatMoney(invoice.tax_total, symbol)}</span>
           </div>
           <div className="flex justify-between border-t border-gray-200 pt-1.5 text-base font-bold">
