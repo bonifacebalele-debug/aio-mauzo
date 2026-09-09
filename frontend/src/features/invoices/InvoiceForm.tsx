@@ -235,21 +235,28 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
                     </div>
                     <div className="sm:col-span-4">
                       <Label>Tax</Label>
-                      <Select
-                        {...register(`items.${index}.tax_id`)}
-                        onChange={(e) => {
-                          const tax = taxes?.find((t) => t.id === Number(e.target.value));
-                          setValue(`items.${index}.tax_id`, tax?.id ?? null, { shouldValidate: true });
-                          setValue(`items.${index}.tax_rate`, Number(tax?.rate ?? 0), { shouldValidate: true });
-                        }}
-                      >
-                        <option value="">No tax</option>
-                        {taxes?.map((t) => (
-                          <option key={t.id} value={t.id}>
-                            {t.name} ({t.rate}%)
-                          </option>
-                        ))}
-                      </Select>
+                      <Controller
+                        control={control}
+                        name={`items.${index}.tax_id`}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value ?? ""}
+                            onChange={(e) => {
+                              const rawValue = e.target.value;
+                              const tax = rawValue === "" ? undefined : taxes?.find((t) => t.id === Number(rawValue));
+                              field.onChange(tax?.id ?? null);
+                              setValue(`items.${index}.tax_rate`, Number(tax?.rate ?? 0), { shouldValidate: true });
+                            }}
+                          >
+                            <option value="">No tax</option>
+                            {taxes?.map((t) => (
+                              <option key={t.id} value={t.id}>
+                                {t.name} ({t.rate}%)
+                              </option>
+                            ))}
+                          </Select>
+                        )}
+                      />
                       <FieldError>
                         {errors.items?.[index]?.tax_id?.message ?? errors.items?.[index]?.tax_rate?.message}
                       </FieldError>
