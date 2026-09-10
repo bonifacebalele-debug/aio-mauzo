@@ -20,6 +20,7 @@ export interface User {
   email: string;
   phone: string | null;
   avatar_url: string | null;
+  signature_url: string | null;
   is_active: boolean;
   last_login_at: string | null;
   roles: string[];
@@ -126,6 +127,7 @@ export interface Invoice {
   sent_at: string | null;
   viewed_at: string | null;
   paid_at: string | null;
+  creator_signature_url: string | null;
   customer: Customer;
   currency: Currency;
   items: InvoiceItem[];

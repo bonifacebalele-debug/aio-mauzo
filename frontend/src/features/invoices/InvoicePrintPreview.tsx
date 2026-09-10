@@ -16,6 +16,7 @@ const LOGO_JUSTIFY: Record<string, string> = {
 
 export function InvoicePrintPreview({ invoice, company }: { invoice: Invoice; company?: Company }) {
   const symbol = invoice.currency.symbol;
+  const signatureUrl = invoice.creator_signature_url ?? company?.signature_url ?? null;
 
   return (
     <div
@@ -128,13 +129,13 @@ export function InvoicePrintPreview({ invoice, company }: { invoice: Invoice; co
         </div>
       )}
 
-      {((company?.signature_enabled && company.signature_url) || (company?.stamp_enabled && company.stamp_url)) && (
+      {((company?.signature_enabled && signatureUrl) || (company?.stamp_enabled && company.stamp_url)) && (
         <div className="mt-10 flex items-end justify-end gap-8 border-t border-gray-100 pt-6">
-          {company.signature_enabled && company.signature_url && (
+          {company?.signature_enabled && signatureUrl && (
             <div className="text-center">
               {/* eslint-disable-next-line @next/next/no-img-element -- server-hosted branding asset */}
               <img
-                src={company.signature_url}
+                src={signatureUrl}
                 alt="Authorized signature"
                 style={{ width: company.signature_width }}
                 className="mx-auto object-contain"
@@ -142,7 +143,7 @@ export function InvoicePrintPreview({ invoice, company }: { invoice: Invoice; co
               <p className="mt-1 border-t border-gray-300 pt-1 text-xs text-gray-500">Authorized Signature</p>
             </div>
           )}
-          {company.stamp_enabled && company.stamp_url && (
+          {company?.stamp_enabled && company.stamp_url && (
             // eslint-disable-next-line @next/next/no-img-element -- server-hosted branding asset
             <img
               src={company.stamp_url}

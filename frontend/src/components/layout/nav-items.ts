@@ -1,4 +1,14 @@
-import { Activity, BarChart3, LayoutDashboard, Settings, UserCog, Users, type LucideIcon, FileText } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  LayoutDashboard,
+  Settings,
+  UserCircle,
+  UserCog,
+  Users,
+  type LucideIcon,
+  FileText,
+} from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -15,4 +25,5 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Activity", href: "/activity", icon: Activity, permission: "users.view" },
   { label: "Users", href: "/users", icon: UserCog, permission: "users.view" },
   { label: "Settings", href: "/settings/company", icon: Settings, permission: "settings.view" },
+  { label: "My Profile", href: "/profile", icon: UserCircle },
 ];
