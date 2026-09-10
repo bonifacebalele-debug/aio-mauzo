@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { FieldError, Input, Label, Textarea } from "@/components/ui/Input";
 import type { Company } from "@/lib/api/types";
+import { useAuthStore } from "@/store/auth-store";
 
 const schema = z.object({
   name: z.string().min(1, "Company name is required").max(255),
@@ -36,6 +37,8 @@ export function CompanySettingsForm({
   company: Company;
   onSubmit: (values: FormValues) => Promise<void>;
 }) {
+  const canEdit = useAuthStore((s) => s.hasPermission("settings.edit"));
+
   const {
     register,
     handleSubmit,
@@ -63,98 +66,108 @@ export function CompanySettingsForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Company Profile</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <Label htmlFor="name">Company Name</Label>
-            <Input id="name" error={errors.name?.message} {...register("name")} />
-            <FieldError>{errors.name?.message}</FieldError>
-          </div>
-          <div>
-            <Label htmlFor="phone">Phone</Label>
-            <Input id="phone" {...register("phone")} />
-          </div>
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" error={errors.email?.message} {...register("email")} />
-            <FieldError>{errors.email?.message}</FieldError>
-          </div>
-          <div>
-            <Label htmlFor="website">Website</Label>
-            <Input id="website" {...register("website")} />
-          </div>
-          <div>
-            <Label htmlFor="tin">TIN</Label>
-            <Input id="tin" {...register("tin")} />
-          </div>
-          <div>
-            <Label htmlFor="vrn">VRN</Label>
-            <Input id="vrn" {...register("vrn")} />
-          </div>
-          <div>
-            <Label htmlFor="business_registration_number">Business Registration No.</Label>
-            <Input id="business_registration_number" {...register("business_registration_number")} />
-          </div>
-          <div className="sm:col-span-2">
-            <Label htmlFor="address">Address</Label>
-            <Textarea id="address" rows={2} {...register("address")} />
-          </div>
-        </CardContent>
-      </Card>
+      {!canEdit && (
+        <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--neutral-bg)] px-4 py-3 text-sm text-foreground-muted">
+          You have view-only access to company settings. Contact an administrator to make changes.
+        </div>
+      )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Invoice Numbering &amp; Branding</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="invoice_prefix">Invoice Prefix</Label>
-            <Input id="invoice_prefix" {...register("invoice_prefix")} />
-          </div>
-          <div>
-            <Label htmlFor="invoice_number_format">Number Format</Label>
-            <Input id="invoice_number_format" {...register("invoice_number_format")} />
-          </div>
-          <div>
-            <Label htmlFor="primary_color">Primary Color</Label>
-            <Input id="primary_color" type="color" className="h-10 w-20 p-1" {...register("primary_color")} />
-          </div>
-          <div>
-            <Label htmlFor="secondary_color">Secondary Color</Label>
-            <Input id="secondary_color" type="color" className="h-10 w-20 p-1" {...register("secondary_color")} />
-          </div>
-        </CardContent>
-      </Card>
+      <fieldset disabled={!canEdit} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Company Profile</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <Label htmlFor="name">Company Name</Label>
+              <Input id="name" error={errors.name?.message} {...register("name")} />
+              <FieldError>{errors.name?.message}</FieldError>
+            </div>
+            <div>
+              <Label htmlFor="phone">Phone</Label>
+              <Input id="phone" {...register("phone")} />
+            </div>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" error={errors.email?.message} {...register("email")} />
+              <FieldError>{errors.email?.message}</FieldError>
+            </div>
+            <div>
+              <Label htmlFor="website">Website</Label>
+              <Input id="website" {...register("website")} />
+            </div>
+            <div>
+              <Label htmlFor="tin">TIN</Label>
+              <Input id="tin" {...register("tin")} />
+            </div>
+            <div>
+              <Label htmlFor="vrn">VRN</Label>
+              <Input id="vrn" {...register("vrn")} />
+            </div>
+            <div>
+              <Label htmlFor="business_registration_number">Business Registration No.</Label>
+              <Input id="business_registration_number" {...register("business_registration_number")} />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="address">Address</Label>
+              <Textarea id="address" rows={2} {...register("address")} />
+            </div>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Invoice Defaults</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-4">
-          <div>
-            <Label htmlFor="payment_instructions">Payment Instructions</Label>
-            <Textarea id="payment_instructions" rows={3} {...register("payment_instructions")} />
-          </div>
-          <div>
-            <Label htmlFor="terms_conditions">Terms &amp; Conditions</Label>
-            <Textarea id="terms_conditions" rows={3} {...register("terms_conditions")} />
-          </div>
-          <div>
-            <Label htmlFor="footer_text">Footer Text</Label>
-            <Textarea id="footer_text" rows={2} {...register("footer_text")} />
-          </div>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Invoice Numbering &amp; Branding</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="invoice_prefix">Invoice Prefix</Label>
+              <Input id="invoice_prefix" {...register("invoice_prefix")} />
+            </div>
+            <div>
+              <Label htmlFor="invoice_number_format">Number Format</Label>
+              <Input id="invoice_number_format" {...register("invoice_number_format")} />
+            </div>
+            <div>
+              <Label htmlFor="primary_color">Primary Color</Label>
+              <Input id="primary_color" type="color" className="h-10 w-20 p-1" {...register("primary_color")} />
+            </div>
+            <div>
+              <Label htmlFor="secondary_color">Secondary Color</Label>
+              <Input id="secondary_color" type="color" className="h-10 w-20 p-1" {...register("secondary_color")} />
+            </div>
+          </CardContent>
+        </Card>
 
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save settings
-        </Button>
-      </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Invoice Defaults</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4">
+            <div>
+              <Label htmlFor="payment_instructions">Payment Instructions</Label>
+              <Textarea id="payment_instructions" rows={3} {...register("payment_instructions")} />
+            </div>
+            <div>
+              <Label htmlFor="terms_conditions">Terms &amp; Conditions</Label>
+              <Textarea id="terms_conditions" rows={3} {...register("terms_conditions")} />
+            </div>
+            <div>
+              <Label htmlFor="footer_text">Footer Text</Label>
+              <Textarea id="footer_text" rows={2} {...register("footer_text")} />
+            </div>
+          </CardContent>
+        </Card>
+      </fieldset>
+
+      {canEdit && (
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Save settings
+          </Button>
+        </div>
+      )}
     </form>
   );
 }
