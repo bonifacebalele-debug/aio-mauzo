@@ -39,7 +39,6 @@ export function InvoicePrintPreview({ invoice, company }: { invoice: Invoice; co
           )}
         </div>
         <div className="text-right">
-          <p className="text-xl font-bold tracking-tight">{invoice.invoice_number}</p>
           <p className="text-xs text-gray-500">Date: {formatDate(invoice.invoice_date)}</p>
           {invoice.due_date && <p className="text-xs text-gray-500">Due: {formatDate(invoice.due_date)}</p>}
         </div>
