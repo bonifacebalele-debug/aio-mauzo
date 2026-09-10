@@ -15,9 +15,17 @@ interface BrandingUploadCardProps {
   description: string;
   imageUrl: string | null;
   children?: ReactNode;
+  readOnly?: boolean;
 }
 
-export function BrandingUploadCard({ asset, title, description, imageUrl, children }: BrandingUploadCardProps) {
+export function BrandingUploadCard({
+  asset,
+  title,
+  description,
+  imageUrl,
+  children,
+  readOnly = false,
+}: BrandingUploadCardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const upload = useUploadBrandingAsset();
   const remove = useDeleteBrandingAsset();
@@ -77,14 +85,14 @@ export function BrandingUploadCard({ asset, title, description, imageUrl, childr
               type="button"
               variant="outline"
               size="sm"
-              disabled={busy}
+              disabled={busy || readOnly}
               onClick={() => inputRef.current?.click()}
             >
               {upload.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               {imageUrl ? "Replace" : "Upload"}
             </Button>
             {imageUrl && (
-              <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={handleRemove}>
+              <Button type="button" variant="ghost" size="sm" disabled={busy || readOnly} onClick={handleRemove}>
                 {remove.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 Remove
               </Button>
