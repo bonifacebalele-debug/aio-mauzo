@@ -11,6 +11,7 @@ import { extractErrorMessage } from "@/lib/api/client";
 import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/Card";
 import { FieldError, Input, Label } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { useAuthStore } from "@/store/auth-store";
 import { toast } from "@/store/toast-store";
 
@@ -57,7 +58,7 @@ export default function LoginPage() {
           <div>
             <Label htmlFor="email">Email</Label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-faint" />
+              <Mail className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-foreground-faint" />
               <Input
                 id="email"
                 type="email"
@@ -74,10 +75,9 @@ export default function LoginPage() {
           <div>
             <Label htmlFor="password">Password</Label>
             <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-faint" />
-              <Input
+              <Lock className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-foreground-faint" />
+              <PasswordInput
                 id="password"
-                type="password"
                 autoComplete="current-password"
                 placeholder="••••••••"
                 className="pl-9"
