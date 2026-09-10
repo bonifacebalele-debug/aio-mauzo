@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Label, Select } from "@/components/ui/Input";
 import { extractErrorMessage } from "@/lib/api/client";
 import type { Company } from "@/lib/api/types";
+import { useAuthStore } from "@/store/auth-store";
 import { toast } from "@/store/toast-store";
 import { BrandingUploadCard } from "./BrandingUploadCard";
 import { useUpdateCompanySettings } from "./hooks";
@@ -43,6 +44,7 @@ function Slider({
 
 export function BrandingSettings({ company }: { company: Company }) {
   const updateSettings = useUpdateCompanySettings();
+  const canEdit = useAuthStore((s) => s.hasPermission("settings.edit"));
 
   const [logoSize, setLogoSize] = useState(company.logo_size);
   const [logoPosition, setLogoPosition] = useState(company.logo_position);
@@ -70,40 +72,49 @@ export function BrandingSettings({ company }: { company: Company }) {
 
   return (
     <div className="space-y-6">
+      {!canEdit && (
+        <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--neutral-bg)] px-4 py-3 text-sm text-foreground-muted">
+          You have view-only access to branding settings. Contact an administrator to make changes.
+        </div>
+      )}
+
       <BrandingUploadCard
         asset="logo"
         title="Company Logo"
         description="PNG, SVG, JPEG, or WebP. Transparent PNG recommended. Shown on invoice PDFs and the in-app preview."
         imageUrl={company.logo_url}
+        readOnly={!canEdit}
       >
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>Size</Label>
-            <Select value={logoSize} onChange={(e) => setLogoSize(e.target.value)}>
-              <option value="small">Small</option>
-              <option value="medium">Medium</option>
-              <option value="large">Large</option>
-            </Select>
+        <fieldset disabled={!canEdit}>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Size</Label>
+              <Select value={logoSize} onChange={(e) => setLogoSize(e.target.value)}>
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+              </Select>
+            </div>
+            <div>
+              <Label>Position</Label>
+              <Select value={logoPosition} onChange={(e) => setLogoPosition(e.target.value)}>
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+              </Select>
+            </div>
           </div>
-          <div>
-            <Label>Position</Label>
-            <Select value={logoPosition} onChange={(e) => setLogoPosition(e.target.value)}>
-              <option value="left">Left</option>
-              <option value="center">Center</option>
-              <option value="right">Right</option>
-            </Select>
-          </div>
-        </div>
-        <Button
-          type="button"
-          size="sm"
-          className="mt-4"
-          disabled={updateSettings.isPending}
-          onClick={() => save({ logo_size: logoSize, logo_position: logoPosition }, "Logo layout")}
-        >
-          {updateSettings.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save layout
-        </Button>
+          <Button
+            type="button"
+            size="sm"
+            className="mt-4"
+            disabled={updateSettings.isPending}
+            onClick={() => save({ logo_size: logoSize, logo_position: logoPosition }, "Logo layout")}
+          >
+            {updateSettings.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Save layout
+          </Button>
+        </fieldset>
       </BrandingUploadCard>
 
       <BrandingUploadCard
@@ -111,8 +122,9 @@ export function BrandingSettings({ company }: { company: Company }) {
         title="Digital Signature"
         description="Transparent PNG of an authorized signature, placed on generated invoices when enabled."
         imageUrl={company.signature_url}
+        readOnly={!canEdit}
       >
-        <div className="space-y-4">
+        <fieldset disabled={!canEdit} className="space-y-4">
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -127,22 +139,22 @@ export function BrandingSettings({ company }: { company: Company }) {
             <Slider label="Position X" value={sigX} min={0} max={1000} onChange={setSigX} />
             <Slider label="Position Y" value={sigY} min={0} max={1000} onChange={setSigY} />
           </div>
-        </div>
-        <Button
-          type="button"
-          size="sm"
-          className="mt-4"
-          disabled={updateSettings.isPending}
-          onClick={() =>
-            save(
-              { signature_enabled: sigEnabled, signature_width: sigWidth, signature_x: sigX, signature_y: sigY },
-              "Signature settings",
-            )
-          }
-        >
-          {updateSettings.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save signature settings
-        </Button>
+          <Button
+            type="button"
+            size="sm"
+            className="mt-4"
+            disabled={updateSettings.isPending}
+            onClick={() =>
+              save(
+                { signature_enabled: sigEnabled, signature_width: sigWidth, signature_x: sigX, signature_y: sigY },
+                "Signature settings",
+              )
+            }
+          >
+            {updateSettings.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Save signature settings
+          </Button>
+        </fieldset>
       </BrandingUploadCard>
 
       <BrandingUploadCard
@@ -150,8 +162,9 @@ export function BrandingSettings({ company }: { company: Company }) {
         title="Company Stamp"
         description="Transparent PNG stamp/seal, placed on generated invoices when enabled."
         imageUrl={company.stamp_url}
+        readOnly={!canEdit}
       >
-        <div className="space-y-4">
+        <fieldset disabled={!canEdit} className="space-y-4">
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -168,29 +181,29 @@ export function BrandingSettings({ company }: { company: Company }) {
             <Slider label="Position X" value={stampX} min={0} max={1000} onChange={setStampX} />
             <Slider label="Position Y" value={stampY} min={0} max={1000} onChange={setStampY} />
           </div>
-        </div>
-        <Button
-          type="button"
-          size="sm"
-          className="mt-4"
-          disabled={updateSettings.isPending}
-          onClick={() =>
-            save(
-              {
-                stamp_enabled: stampEnabled,
-                stamp_width: stampWidth,
-                stamp_rotation: stampRotation,
-                stamp_opacity: stampOpacity,
-                stamp_x: stampX,
-                stamp_y: stampY,
-              },
-              "Stamp settings",
-            )
-          }
-        >
-          {updateSettings.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save stamp settings
-        </Button>
+          <Button
+            type="button"
+            size="sm"
+            className="mt-4"
+            disabled={updateSettings.isPending}
+            onClick={() =>
+              save(
+                {
+                  stamp_enabled: stampEnabled,
+                  stamp_width: stampWidth,
+                  stamp_rotation: stampRotation,
+                  stamp_opacity: stampOpacity,
+                  stamp_x: stampX,
+                  stamp_y: stampY,
+                },
+                "Stamp settings",
+              )
+            }
+          >
+            {updateSettings.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Save stamp settings
+          </Button>
+        </fieldset>
       </BrandingUploadCard>
     </div>
   );
