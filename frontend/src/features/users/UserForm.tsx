@@ -6,14 +6,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/Button";
 import { FieldError, Input, Label, Select } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import type { User } from "@/lib/api/types";
 import { useRoles } from "./hooks";
 
-// A single schema shared by create and edit. Password is optional at the
-// type level in both modes — edit mode leaves it blank to keep the current
-// password, and create mode enforces "required" via the input's `required`
-// attribute plus the backend's own validation (StoreUserRequest), rather
-// than forking the zod schema/type per mode.
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(255),
   email: z.string().email("Enter a valid email").max(255),
@@ -30,7 +26,6 @@ interface UserFormProps {
   onSubmit: (values: UserFormValues) => Promise<void>;
   submitLabel?: string;
   mode?: "create" | "edit";
-  /** Editing your own account — hides the active/inactive toggle, since you can't deactivate yourself. */
   isSelf?: boolean;
 }
 
@@ -94,9 +89,8 @@ export function UserForm({
 
         <div className="sm:col-span-2">
           <Label htmlFor="password">{mode === "edit" ? "New Password" : "Password"}</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             required={mode === "create"}
             error={errors.password?.message}
             {...register("password")}
