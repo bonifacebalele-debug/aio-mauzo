@@ -44,11 +44,17 @@ export const FadedTextarea = forwardRef<HTMLTextAreaElement, FadedTextareaProps>
     };
 
     return (
-      <div className="relative">
+      <div
+        className={cn(
+          "relative w-full overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] transition-colors",
+          "focus-within:border-primary focus-within:ring-2 focus-within:ring-[var(--ring)]",
+          error && "border-[var(--danger)] focus-within:border-[var(--danger)]",
+        )}
+      >
         <div
           ref={backdropRef}
           aria-hidden
-          className="pointer-events-none absolute inset-0 overflow-hidden whitespace-pre-wrap break-words rounded-[var(--radius-md)] px-3.5 py-2.5 text-sm"
+          className="pointer-events-none absolute inset-0 overflow-hidden whitespace-pre-wrap break-words px-3.5 py-2.5 text-sm"
         >
           <span className="text-foreground">{firstLine}</span>
           <span className="text-foreground-muted">{restLines}</span>
@@ -63,10 +69,9 @@ export const FadedTextarea = forwardRef<HTMLTextAreaElement, FadedTextareaProps>
             onScroll?.(e);
           }}
           className={cn(
-            "relative w-full resize-y rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-sm text-transparent " +
-              "caret-foreground placeholder:text-foreground-faint transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-[var(--ring)] " +
+            "relative w-full resize-y bg-transparent px-3.5 py-2.5 text-sm text-transparent " +
+              "caret-foreground placeholder:text-foreground-faint focus:outline-none " +
               "disabled:opacity-50 disabled:cursor-not-allowed",
-            error && "border-[var(--danger)] focus:border-[var(--danger)]",
             className,
           )}
           {...props}
