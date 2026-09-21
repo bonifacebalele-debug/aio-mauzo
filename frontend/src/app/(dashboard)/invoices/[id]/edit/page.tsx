@@ -27,6 +27,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
         due_date: values.due_date || null,
         notes: values.notes || null,
         terms: values.terms || null,
+        amount_paid: values.amount_paid,
         items: values.items,
       });
       toast.success("Invoice updated.");

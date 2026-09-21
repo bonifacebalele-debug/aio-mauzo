@@ -21,6 +21,7 @@ export default function NewInvoicePage() {
         due_date: values.due_date || null,
         notes: values.notes || null,
         terms: values.terms || null,
+        amount_paid: values.amount_paid,
         items: values.items,
       });
       toast.success(`Invoice ${invoice.invoice_number} created.`);

@@ -143,6 +143,7 @@ export interface InvoicePayload {
   due_date?: string | null;
   notes?: string | null;
   terms?: string | null;
+  amount_paid?: number;
   items: InvoiceItemPayload[];
 }
 

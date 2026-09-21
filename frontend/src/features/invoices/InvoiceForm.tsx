@@ -7,6 +7,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { FadedTextarea } from "@/components/ui/FadedTextarea";
 import { FieldError, Input, Label, Select, Textarea } from "@/components/ui/Input";
 import { CustomerCombobox } from "@/features/customers/CustomerCombobox";
 import type { Customer, Invoice } from "@/lib/api/types";
@@ -33,6 +34,7 @@ const schema = z.object({
   due_date: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
   terms: z.string().optional().or(z.literal("")),
+  amount_paid: z.number().min(0),
   items: z.array(itemSchema).min(1, "Add at least one line item"),
 });
 
@@ -79,6 +81,7 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
       due_date: defaultValues?.due_date ?? "",
       notes: defaultValues?.notes ?? "",
       terms: defaultValues?.terms ?? "",
+      amount_paid: defaultValues?.amount_paid ?? 0,
       items:
         defaultValues?.items.map((item) => ({
           description: item.description,
@@ -96,9 +99,11 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
   const watchedItems = watch("items");
   const currencyId = watch("currency_id");
+  const amountPaid = watch("amount_paid");
   const currency = currencies?.find((c) => c.id === Number(currencyId));
 
   const totals = useMemo(() => calculateInvoice(watchedItems ?? []), [watchedItems]);
+  const balanceDue = Math.max(0, totals.grandTotal - (Number(amountPaid) || 0));
 
   // Currencies load asynchronously, so the default currency can't always be
   // resolved at useForm's initial defaultValues (it may still be undefined
@@ -158,7 +163,11 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
 
             <div>
               <Label htmlFor="reference">Reference</Label>
-              <Input id="reference" {...register("reference")} />
+              <Input id="reference" placeholder="Auto-generated if left blank" {...register("reference")} />
+              <p className="mt-1 text-xs text-foreground-faint">
+                Leave blank to auto-generate, e.g. #MCL/001.2026 (client initials / invoice no. for that client
+                / year).
+              </p>
             </div>
 
             <div>
@@ -170,6 +179,19 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
             <div>
               <Label htmlFor="due_date">Due Date</Label>
               <Input id="due_date" type="date" {...register("due_date")} />
+            </div>
+
+            <div>
+              <Label htmlFor="amount_paid">Amount Paid / Advance Payment</Label>
+              <Input
+                id="amount_paid"
+                type="number"
+                step="0.01"
+                min={0}
+                error={errors.amount_paid?.message}
+                {...register("amount_paid", { setValueAs: (v) => (v === "" ? 0 : Number(v)) })}
+              />
+              <FieldError>{errors.amount_paid?.message}</FieldError>
             </div>
           </CardContent>
         </Card>
@@ -192,10 +214,19 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
                     <div className="sm:col-span-5">
                       <Label>Description</Label>
-                      <Input
-                        error={errors.items?.[index]?.description?.message}
-                        {...register(`items.${index}.description`)}
+                      <Controller
+                        control={control}
+                        name={`items.${index}.description`}
+                        render={({ field: descField }) => (
+                          <FadedTextarea
+                            value={descField.value}
+                            onChange={descField.onChange}
+                            onBlur={descField.onBlur}
+                            error={errors.items?.[index]?.description?.message}
+                          />
+                        )}
                       />
+                      <FieldError>{errors.items?.[index]?.description?.message}</FieldError>
                     </div>
                     <div className="sm:col-span-2">
                       <Label>Qty</Label>
@@ -329,6 +360,20 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
                 {formatMoney(totals.grandTotal, currency?.symbol)}
               </span>
             </div>
+            {Number(amountPaid) > 0 && (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-foreground-muted">Paid</span>
+                  <span className="font-medium tabular-nums">
+                    {formatMoney(Number(amountPaid), currency?.symbol)}
+                  </span>
+                </div>
+                <div className="flex justify-between border-t border-[var(--border)] pt-2">
+                  <span className="font-semibold">Balance Due</span>
+                  <span className="font-bold tabular-nums">{formatMoney(balanceDue, currency?.symbol)}</span>
+                </div>
+              </>
+            )}
 
             <Button type="submit" className="mt-4 w-full" disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
