@@ -22,6 +22,7 @@ export default function NewInvoicePage() {
         notes: values.notes || null,
         terms: values.terms || null,
         amount_paid: values.amount_paid,
+        shipping_cost: values.shipping_cost,
         items: values.items,
       });
       toast.success(`Invoice ${invoice.invoice_number} created.`);

@@ -116,6 +116,7 @@ export interface Invoice {
   status_label: string;
   subtotal: number;
   discount_total: number;
+  shipping_cost: number;
   tax_total: number;
   grand_total: number;
   amount_paid: number;
@@ -144,6 +145,7 @@ export interface InvoicePayload {
   notes?: string | null;
   terms?: string | null;
   amount_paid?: number;
+  shipping_cost?: number;
   items: InvoiceItemPayload[];
 }
 

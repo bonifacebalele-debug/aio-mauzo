@@ -24,6 +24,7 @@ export interface LineTotals {
 export interface InvoiceTotals {
   subtotal: number;
   discountTotal: number;
+  shippingCost: number;
   taxTotal: number;
   grandTotal: number;
   lines: LineTotals[];
@@ -47,14 +48,31 @@ export function calculateLine(item: CalculableItem): LineTotals {
   return { subtotal, discountAmount, taxAmount, total };
 }
 
-export function calculateInvoice(items: CalculableItem[]): InvoiceTotals {
+/**
+ * @param shippingCost Flat invoice-level shipping cost (not per item).
+ * @param shippingTaxRate VAT rate (%) applied to the shipping cost itself —
+ *                        pass the default Tax's rate so shipping is taxed
+ *                        the same way the backend taxes it.
+ */
+export function calculateInvoice(
+  items: CalculableItem[],
+  shippingCost = 0,
+  shippingTaxRate = 0,
+): InvoiceTotals {
   const lines = items.map(calculateLine);
+
+  const itemsTaxTotal = round2(lines.reduce((sum, l) => sum + l.taxAmount, 0));
+  const itemsGrandTotal = round2(lines.reduce((sum, l) => sum + l.total, 0));
+
+  const shipping = round2(Math.max(0, shippingCost || 0));
+  const shippingTax = round2((shipping * (shippingTaxRate || 0)) / 100);
 
   return {
     subtotal: round2(lines.reduce((sum, l) => sum + l.subtotal, 0)),
     discountTotal: round2(lines.reduce((sum, l) => sum + l.discountAmount, 0)),
-    taxTotal: round2(lines.reduce((sum, l) => sum + l.taxAmount, 0)),
-    grandTotal: round2(lines.reduce((sum, l) => sum + l.total, 0)),
+    shippingCost: shipping,
+    taxTotal: round2(itemsTaxTotal + shippingTax),
+    grandTotal: round2(itemsGrandTotal + shipping + shippingTax),
     lines,
   };
 }

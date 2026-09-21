@@ -35,6 +35,7 @@ const schema = z.object({
   notes: z.string().optional().or(z.literal("")),
   terms: z.string().optional().or(z.literal("")),
   amount_paid: z.number().min(0),
+  shipping_cost: z.number().min(0),
   items: z.array(itemSchema).min(1, "Add at least one line item"),
 });
 
@@ -82,6 +83,7 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
       notes: defaultValues?.notes ?? "",
       terms: defaultValues?.terms ?? "",
       amount_paid: defaultValues?.amount_paid ?? 0,
+      shipping_cost: defaultValues?.shipping_cost ?? 0,
       items:
         defaultValues?.items.map((item) => ({
           description: item.description,
@@ -100,9 +102,14 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
   const watchedItems = watch("items");
   const currencyId = watch("currency_id");
   const amountPaid = watch("amount_paid");
+  const shippingCost = watch("shipping_cost");
   const currency = currencies?.find((c) => c.id === Number(currencyId));
+  const defaultTaxRate = taxes?.find((t) => t.is_default)?.rate ?? 0;
 
-  const totals = useMemo(() => calculateInvoice(watchedItems ?? []), [watchedItems]);
+  const totals = useMemo(
+    () => calculateInvoice(watchedItems ?? [], Number(shippingCost) || 0, defaultTaxRate),
+    [watchedItems, shippingCost, defaultTaxRate],
+  );
   const balanceDue = Math.max(0, totals.grandTotal - (Number(amountPaid) || 0));
 
   // Currencies load asynchronously, so the default currency can't always be
@@ -350,6 +357,23 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
                 −{formatMoney(totals.discountTotal, currency?.symbol)}
               </span>
             </div>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="shipping_cost" className="mb-0 text-sm font-normal normal-case tracking-normal text-foreground-muted">
+                Shipping
+              </Label>
+              <div className="flex items-center gap-1.5">
+                {currency?.symbol && <span className="text-xs text-foreground-faint">{currency.symbol}</span>}
+                <input
+                  id="shipping_cost"
+                  type="number"
+                  step="0.01"
+                  min={0}
+                  className="w-24 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-right text-sm tabular-nums text-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-[var(--ring)]"
+                  {...register("shipping_cost", { setValueAs: (v) => (v === "" ? 0 : Number(v)) })}
+                />
+              </div>
+            </div>
+            <FieldError>{errors.shipping_cost?.message}</FieldError>
             <div className="flex justify-between">
               <span className="text-foreground-muted">Tax</span>
               <span className="font-medium tabular-nums">{formatMoney(totals.taxTotal, currency?.symbol)}</span>
