@@ -111,6 +111,56 @@ export interface Currency {
   is_default: boolean;
 }
 
+export interface ExpenseCategory {
+  id: number;
+  name: string;
+  is_active: boolean;
+}
+
+export interface Expense {
+  id: number;
+  category: ExpenseCategory;
+  currency: Currency;
+  amount: number;
+  expense_date: string;
+  vendor: string | null;
+  description: string | null;
+  receipt_url: string | null;
+  recorded_by: { id: number; name: string } | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExpensePayload {
+  expense_category_id: number;
+  currency_id: number;
+  amount: number;
+  expense_date: string;
+  vendor?: string;
+  description?: string;
+  receipt?: File | null;
+  remove_receipt?: boolean;
+}
+
+export interface ExpenseCurrencyTotal {
+  currency_code: string;
+  currency_symbol: string;
+  total: number;
+  count: number;
+}
+
+export interface ExpenseCategoryTotal {
+  category_id: number;
+  category_name: string;
+  total: number;
+  count: number;
+}
+
+export interface ExpenseSummary {
+  by_currency: ExpenseCurrencyTotal[];
+  by_category: ExpenseCategoryTotal[];
+}
+
 export interface Tax {
   id: number;
   name: string;
