@@ -18,3 +18,14 @@ export async function fetchRoles(): Promise<string[]> {
 
   return data.data;
 }
+
+/**
+ * Roles the current user is allowed to assign — Administrator gets all of
+ * them, a Manager (users.request only) gets a restricted list that
+ * excludes Administrator and Manager.
+ */
+export async function fetchAssignableRoles(): Promise<string[]> {
+  const { data } = await apiClient.get<ApiResponse<string[]>>("/roles/assignable");
+
+  return data.data;
+}

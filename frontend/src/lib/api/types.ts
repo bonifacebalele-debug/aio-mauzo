@@ -14,6 +14,8 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export type UserStatus = "active" | "pending" | "awaiting_verification" | "rejected";
+
 export interface User {
   id: number;
   name: string;
@@ -22,7 +24,16 @@ export interface User {
   avatar_url: string | null;
   signature_url: string | null;
   is_active: boolean;
+  status: UserStatus;
+  needs_password: boolean;
+  invited_by?: string | null;
+  approved_by?: string | null;
+  approved_at: string | null;
+  rejected_by?: string | null;
+  rejected_at: string | null;
+  rejection_reason: string | null;
   last_login_at: string | null;
+  created_at?: string;
   roles: string[];
   permissions: string[];
 }
@@ -34,6 +45,37 @@ export interface UserPayload {
   password?: string;
   role: string;
   is_active?: boolean;
+}
+
+export interface RequestUserPayload {
+  name: string;
+  email: string;
+  phone?: string;
+  role: string;
+}
+
+export interface ApproveUserPayload {
+  role?: string;
+}
+
+export interface RejectUserPayload {
+  reason?: string;
+}
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  phone?: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export interface VerifyUserPayload {
+  uid: number;
+  expires: number;
+  token: string;
+  password?: string;
+  password_confirmation?: string;
 }
 
 export interface Customer {

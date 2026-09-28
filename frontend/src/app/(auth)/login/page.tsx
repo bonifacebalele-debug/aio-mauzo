@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2, Lock, Mail, Receipt } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -94,7 +95,14 @@ export default function LoginPage() {
         </form>
       </GlassCard>
 
-      <p className="mt-6 text-center text-xs text-foreground-faint">
+      <p className="mt-6 text-center text-sm text-foreground-faint">
+        New here?{" "}
+        <Link href="/register" className="font-medium text-primary hover:underline">
+          Create an account
+        </Link>
+      </p>
+
+      <p className="mt-2 text-center text-xs text-foreground-faint">
         Demo accounts: admin / manager / sales / accountant / viewer @aio-mauzo.local — password: password
       </p>
     </motion.div>
