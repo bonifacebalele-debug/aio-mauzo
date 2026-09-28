@@ -99,7 +99,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <Label htmlFor="phone">Phone (optional)</Label>
+            <Label htmlFor="phone">Phone</Label>
             <div className="relative">
               <Phone className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-foreground-faint" />
               <Input id="phone" className="pl-9" {...register("phone")} />
