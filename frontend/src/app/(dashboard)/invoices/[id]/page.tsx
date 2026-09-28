@@ -33,6 +33,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const router = useRouter();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [whatsappLoading, setWhatsappLoading] = useState(false);
 
   const hasPermission = useAuthStore((s) => s.hasPermission);
   const { data: invoice, isLoading } = useInvoice(invoiceId);
@@ -47,6 +48,24 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       window.open(result.pdf_url, "_blank");
     } catch (error) {
       toast.error(extractErrorMessage(error));
+    }
+  };
+
+  const handleWhatsApp = async () => {
+    if (!invoice) return;
+    try {
+      let pdfUrl = invoice.pdf_url;
+      if (!pdfUrl) {
+        setWhatsappLoading(true);
+        const result = await generatePdf.mutateAsync(invoiceId);
+        pdfUrl = result.pdf_url;
+      }
+      const link = buildWhatsAppShareLink(invoice, pdfUrl);
+      window.open(link, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      toast.error(extractErrorMessage(error));
+    } finally {
+      setWhatsappLoading(false);
     }
   };
 
@@ -99,14 +118,16 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             <Copy className="h-4 w-4" /> Copy Link
           </Button>
 
-          <a
-            href={buildWhatsAppShareLink(invoice)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={buttonVariants({ variant: "secondary", size: "sm", className: "gap-1.5" })}
+          <Button
+            variant="secondary"
+            size="sm"
+            className="gap-1.5"
+            onClick={handleWhatsApp}
+            disabled={whatsappLoading}
           >
-            <MessageCircle className="h-4 w-4" /> WhatsApp
-          </a>
+            {whatsappLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
+            WhatsApp
+          </Button>
 
           {hasPermission("invoices.edit") && (
             <Button variant="outline" size="sm" onClick={() => setEmailModalOpen(true)}>
