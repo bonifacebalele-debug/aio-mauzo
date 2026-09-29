@@ -4,6 +4,7 @@ import { ArrowLeft, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
+import { EmojiPicker } from "@/features/chat/EmojiPicker";
 import { useMessages, useSendMessage } from "@/features/chat/hooks";
 import { extractErrorMessage } from "@/lib/api/client";
 import type { Conversation } from "@/lib/api/types";
@@ -21,6 +22,7 @@ export function MessageThread({ conversation, onBack }: MessageThreadProps) {
   const { data, isLoading } = useMessages(conversation.id);
   const sendMessage = useSendMessage(conversation.id);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
@@ -37,6 +39,26 @@ export function MessageThread({ conversation, onBack }: MessageThreadProps) {
       toast.error(extractErrorMessage(error));
       setBody(trimmed);
     }
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    const textarea = textareaRef.current;
+
+    if (!textarea) {
+      setBody((prev) => prev + emoji);
+      return;
+    }
+
+    const start = textarea.selectionStart ?? body.length;
+    const end = textarea.selectionEnd ?? body.length;
+    const next = body.slice(0, start) + emoji + body.slice(end);
+    setBody(next);
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      const cursor = start + emoji.length;
+      textarea.setSelectionRange(cursor, cursor);
+    });
   };
 
   return (
@@ -101,6 +123,7 @@ export function MessageThread({ conversation, onBack }: MessageThreadProps) {
         className="flex items-end gap-2 border-t border-[var(--border)] p-3"
       >
         <Textarea
+          ref={textareaRef}
           value={body}
           onChange={(e) => setBody(e.target.value)}
           onKeyDown={(e) => {
@@ -113,6 +136,7 @@ export function MessageThread({ conversation, onBack }: MessageThreadProps) {
           className="max-h-32 min-h-10 flex-1 resize-none py-2.5"
           rows={1}
         />
+        <EmojiPicker onSelect={handleEmojiSelect} />
         <Button type="submit" size="icon" disabled={!body.trim() || sendMessage.isPending} aria-label="Send">
           <Send className="h-4 w-4" />
         </Button>
