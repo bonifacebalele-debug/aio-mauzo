@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Receipt } from "lucide-react";
+import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { logout } from "@/lib/api/auth";
@@ -26,9 +26,8 @@ export function Sidebar() {
     <aside className="hidden w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] lg:flex">
       <div className="flex h-16 items-center justify-between gap-2.5 px-6">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] bg-primary text-primary-foreground">
-            <Receipt className="h-5 w-5" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element -- small fixed-size brand mark, next/image is overkill */}
+          <img src="/logo.png" alt="AIO Invoice" className="h-9 w-9 shrink-0 object-contain" />
           <div>
             <p className="text-sm font-semibold leading-tight">AIO Invoice</p>
             <p className="text-xs text-foreground-faint leading-tight">AIO Technologies</p>
