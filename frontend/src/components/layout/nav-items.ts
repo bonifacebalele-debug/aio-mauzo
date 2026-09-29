@@ -2,6 +2,7 @@ import {
   Activity,
   BarChart3,
   LayoutDashboard,
+  MessageCircle,
   Receipt,
   Settings,
   UserCircle,
@@ -20,6 +21,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Chat", href: "/chat", icon: MessageCircle },
   { label: "Customers", href: "/customers", icon: Users, permission: "customers.view" },
   { label: "Invoices", href: "/invoices", icon: FileText, permission: "invoices.view" },
   { label: "Expenses", href: "/expenses", icon: Receipt, permission: "expenses.view" },

@@ -7,6 +7,7 @@ import { logout } from "@/lib/api/auth";
 import { cn } from "@/lib/utils/cn";
 import { useAuthStore } from "@/store/auth-store";
 import { NAV_ITEMS } from "./nav-items";
+import { NotificationBell } from "./NotificationBell";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -23,14 +24,17 @@ export function Sidebar() {
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] lg:flex">
-      <div className="flex h-16 items-center gap-2.5 px-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] bg-primary text-primary-foreground">
-          <Receipt className="h-5 w-5" />
+      <div className="flex h-16 items-center justify-between gap-2.5 px-6">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] bg-primary text-primary-foreground">
+            <Receipt className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold leading-tight">AIO Invoice</p>
+            <p className="text-xs text-foreground-faint leading-tight">AIO Technologies</p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-semibold leading-tight">AIO Invoice</p>
-          <p className="text-xs text-foreground-faint leading-tight">AIO Technologies</p>
-        </div>
+        <NotificationBell />
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4">

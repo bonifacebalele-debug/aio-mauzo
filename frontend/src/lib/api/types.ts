@@ -403,3 +403,49 @@ export interface Company {
   invoice_number_format: string;
   bank_accounts?: CompanyBankAccount[];
 }
+
+export interface ChatUser {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface ConversationParticipant {
+  id: number;
+  name: string;
+}
+
+export interface ConversationLastMessage {
+  body: string;
+  sender_name: string | null;
+  created_at: string;
+}
+
+export interface Conversation {
+  id: number;
+  is_group: boolean;
+  name: string;
+  participants: ConversationParticipant[];
+  last_message: ConversationLastMessage | null;
+  unread_count: number;
+  updated_at: string;
+}
+
+export interface ChatMessage {
+  id: number;
+  conversation_id: number;
+  body: string;
+  sender: { id: number | null; name: string | null };
+  is_mine: boolean;
+  created_at: string;
+}
+
+export interface NotificationItem {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  link: string | null;
+  read_at: string | null;
+  created_at: string;
+}

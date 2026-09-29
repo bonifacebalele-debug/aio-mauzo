@@ -1,6 +1,7 @@
 "use client";
 
 import { Receipt } from "lucide-react";
+import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function Topbar() {
@@ -12,7 +13,10 @@ export function Topbar() {
         </div>
         <p className="text-sm font-semibold">AIO Invoice</p>
       </div>
-      <ThemeToggle />
+      <div className="flex items-center gap-1">
+        <NotificationBell />
+        <ThemeToggle />
+      </div>
     </header>
   );
 }
