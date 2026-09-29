@@ -4,7 +4,7 @@ import { Banknote, Download, FileSpreadsheet, FileText, Plus, Receipt, Search, T
 import Link from "next/link";
 import { useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { buttonVariants } from "@/components/ui/Button";
+import { Button, buttonVariants } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input, Select } from "@/components/ui/Input";
@@ -14,7 +14,7 @@ import { StatCard } from "@/features/dashboard/StatCard";
 import { ExpenseCard, ExpenseTableRow } from "@/features/expenses/ExpenseRow";
 import { useDeleteExpense, useExpenseCategories, useExpenseSummary, useExpenses } from "@/features/expenses/hooks";
 import { extractErrorMessage } from "@/lib/api/client";
-import { getExpenseExportUrl } from "@/lib/api/expenses";
+import { downloadExpenseExport } from "@/lib/api/expenses";
 import type { Expense } from "@/lib/api/types";
 import { formatMoney } from "@/lib/utils/format";
 import { useAuthStore } from "@/store/auth-store";
@@ -27,6 +27,7 @@ export default function ExpensesPage() {
   const [dateTo, setDateTo] = useState("");
   const [page, setPage] = useState(1);
   const [pendingDelete, setPendingDelete] = useState<Expense | null>(null);
+  const [downloading, setDownloading] = useState<"csv" | "xlsx" | "pdf" | null>(null);
 
   const hasPermission = useAuthStore((s) => s.hasPermission);
   const canCreate = hasPermission("expenses.create");
@@ -55,6 +56,17 @@ export default function ExpensesPage() {
       setPendingDelete(null);
     } catch (error) {
       toast.error(extractErrorMessage(error));
+    }
+  };
+
+  const handleExport = async (format: "csv" | "xlsx" | "pdf") => {
+    setDownloading(format);
+    try {
+      await downloadExpenseExport(format, filters);
+    } catch (error) {
+      toast.error(extractErrorMessage(error));
+    } finally {
+      setDownloading(null);
     }
   };
 
@@ -148,30 +160,39 @@ export default function ExpensesPage() {
 
         {canExport && (
           <div className="flex gap-2 sm:ml-auto">
-            <a
-              href={getExpenseExportUrl("csv", filters)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              loading={downloading === "csv"}
+              disabled={downloading !== null && downloading !== "csv"}
+              onClick={() => handleExport("csv")}
             >
               <Download className="h-4 w-4" /> CSV
-            </a>
-            <a
-              href={getExpenseExportUrl("xlsx", filters)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              loading={downloading === "xlsx"}
+              disabled={downloading !== null && downloading !== "xlsx"}
+              onClick={() => handleExport("xlsx")}
             >
               <FileSpreadsheet className="h-4 w-4" /> Excel
-            </a>
-            <a
-              href={getExpenseExportUrl("pdf", filters)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              loading={downloading === "pdf"}
+              disabled={downloading !== null && downloading !== "pdf"}
+              onClick={() => handleExport("pdf")}
             >
               <FileText className="h-4 w-4" /> PDF
-            </a>
+            </Button>
           </div>
         )}
       </div>

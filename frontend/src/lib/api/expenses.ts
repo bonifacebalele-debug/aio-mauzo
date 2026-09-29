@@ -1,4 +1,5 @@
-import { API_URL, apiClient } from "./client";
+import { apiClient } from "./client";
+import { downloadBlob, filenameFromContentDisposition } from "@/lib/utils/download";
 import type {
   ApiResponse,
   Expense,
@@ -109,17 +110,21 @@ export async function createExpenseCategory(name: string): Promise<ExpenseCatego
   return data.data;
 }
 
-export function getExpenseExportUrl(
+/**
+ * Downloads an expense export via an authenticated XHR request rather than
+ * a plain `<a href>` navigation — see the matching note on
+ * `downloadReportExport` in reports.ts for why a direct link to the API
+ * comes back "Unauthenticated" even when the user is signed in.
+ */
+export async function downloadExpenseExport(
   format: "pdf" | "csv" | "xlsx",
   filters: Omit<ExpenseFilters, "page" | "per_page"> = {},
-): string {
-  const params = new URLSearchParams({
-    format,
-    ...(filters.search ? { search: filters.search } : {}),
-    ...(filters.category_id ? { category_id: String(filters.category_id) } : {}),
-    ...(filters.date_from ? { date_from: filters.date_from } : {}),
-    ...(filters.date_to ? { date_to: filters.date_to } : {}),
+): Promise<void> {
+  const response = await apiClient.get("/expenses/export", {
+    params: { format, ...filters },
+    responseType: "blob",
   });
 
-  return `${API_URL}/api/expenses/export?${params.toString()}`;
+  const fallback = `expenses.${format}`;
+  downloadBlob(response.data, filenameFromContentDisposition(response.headers["content-disposition"], fallback));
 }

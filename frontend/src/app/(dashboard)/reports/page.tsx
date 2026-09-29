@@ -4,13 +4,15 @@ import { Download, FileSpreadsheet, FileText } from "lucide-react";
 import { useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
-import { buttonVariants } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import { Input, Label } from "@/components/ui/Input";
 import { ReportTable } from "@/features/reports/ReportTable";
 import { useReport } from "@/features/reports/hooks";
-import { getReportExportUrl } from "@/lib/api/reports";
+import { downloadReportExport } from "@/lib/api/reports";
+import { extractErrorMessage } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
 import { useAuthStore } from "@/store/auth-store";
+import { toast } from "@/store/toast-store";
 import type { ReportType } from "@/lib/api/types";
 
 const REPORT_TABS: { key: ReportType; label: string; usesDateRange: boolean }[] = [
@@ -25,12 +27,24 @@ export default function ReportsPage() {
   const [type, setType] = useState<ReportType>("sales");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [downloading, setDownloading] = useState<"csv" | "xlsx" | "pdf" | null>(null);
 
   const canExport = useAuthStore((s) => s.hasPermission("reports.export"));
 
   const activeTab = REPORT_TABS.find((t) => t.key === type)!;
   const filters = activeTab.usesDateRange ? { from: from || undefined, to: to || undefined } : {};
   const { data: report, isLoading } = useReport(type, filters);
+
+  const handleExport = async (format: "csv" | "xlsx" | "pdf") => {
+    setDownloading(format);
+    try {
+      await downloadReportExport(type, format, filters);
+    } catch (error) {
+      toast.error(extractErrorMessage(error));
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   return (
     <div>
@@ -71,30 +85,39 @@ export default function ReportsPage() {
 
             {canExport && (
               <div className="flex gap-2">
-                <a
-                  href={getReportExportUrl(type, "csv", filters)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  loading={downloading === "csv"}
+                  disabled={downloading !== null && downloading !== "csv"}
+                  onClick={() => handleExport("csv")}
                 >
                   <Download className="h-4 w-4" /> CSV
-                </a>
-                <a
-                  href={getReportExportUrl(type, "xlsx", filters)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  loading={downloading === "xlsx"}
+                  disabled={downloading !== null && downloading !== "xlsx"}
+                  onClick={() => handleExport("xlsx")}
                 >
                   <FileSpreadsheet className="h-4 w-4" /> Excel
-                </a>
-                <a
-                  href={getReportExportUrl(type, "pdf", filters)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  loading={downloading === "pdf"}
+                  disabled={downloading !== null && downloading !== "pdf"}
+                  onClick={() => handleExport("pdf")}
                 >
                   <FileText className="h-4 w-4" /> PDF
-                </a>
+                </Button>
               </div>
             )}
           </div>
