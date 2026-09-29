@@ -31,6 +31,7 @@ export default function InvoicesPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<InvoiceStatus | "">("");
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
   const [pendingDelete, setPendingDelete] = useState<Invoice | null>(null);
 
   const hasPermission = useAuthStore((s) => s.hasPermission);
@@ -41,7 +42,7 @@ export default function InvoicesPage() {
     search: search || undefined,
     status: status || undefined,
     page,
-    per_page: 15,
+    per_page: perPage,
   });
   const deleteInvoice = useDeleteInvoice();
   const duplicateInvoice = useDuplicateInvoice();
@@ -168,7 +169,14 @@ export default function InvoicesPage() {
               ))}
             </div>
 
-            <Pagination meta={data.meta} onPageChange={setPage} />
+            <Pagination
+              meta={data.meta}
+              onPageChange={setPage}
+              onPerPageChange={(value) => {
+                setPerPage(value);
+                setPage(1);
+              }}
+            />
           </>
         )}
       </div>

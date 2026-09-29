@@ -40,6 +40,7 @@ function UsersPageContent() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<UserStatus | "">((searchParams.get("status") as UserStatus | null) ?? "");
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
   const [pendingDelete, setPendingDelete] = useState<User | null>(null);
   const [pendingApprove, setPendingApprove] = useState<User | null>(null);
   const [pendingReject, setPendingReject] = useState<User | null>(null);
@@ -53,7 +54,7 @@ function UsersPageContent() {
     search: search || undefined,
     status: status || undefined,
     page,
-    per_page: 15,
+    per_page: perPage,
   });
   const deleteUser = useDeleteUser();
   const approveUser = useApproveUser();
@@ -196,7 +197,14 @@ function UsersPageContent() {
               ))}
             </div>
 
-            <Pagination meta={data.meta} onPageChange={setPage} />
+            <Pagination
+              meta={data.meta}
+              onPageChange={setPage}
+              onPerPageChange={(value) => {
+                setPerPage(value);
+                setPage(1);
+              }}
+            />
           </>
         )}
       </div>

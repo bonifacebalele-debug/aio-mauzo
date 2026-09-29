@@ -13,8 +13,9 @@ import { formatDateTime } from "@/lib/utils/format";
 export default function ActivityLogPage() {
   const [action, setAction] = useState("");
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
 
-  const { data, isLoading } = useActivityLogs({ action: action || undefined, page, per_page: 25 });
+  const { data, isLoading } = useActivityLogs({ action: action || undefined, page, per_page: perPage });
 
   return (
     <div>
@@ -54,7 +55,15 @@ export default function ActivityLogPage() {
                 </li>
               ))}
             </ul>
-            <Pagination meta={data.meta} onPageChange={setPage} />
+            <Pagination
+              meta={data.meta}
+              onPageChange={setPage}
+              onPerPageChange={(value) => {
+                setPerPage(value);
+                setPage(1);
+              }}
+              perPageOptions={[10, 25, 50, 100]}
+            />
           </>
         )}
       </div>

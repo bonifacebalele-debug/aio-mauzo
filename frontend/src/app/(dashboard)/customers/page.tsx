@@ -20,13 +20,14 @@ import { toast } from "@/store/toast-store";
 export default function CustomersPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
   const [pendingDelete, setPendingDelete] = useState<Customer | null>(null);
 
   const hasPermission = useAuthStore((s) => s.hasPermission);
   const canCreate = hasPermission("customers.create");
   const canDelete = hasPermission("customers.delete");
 
-  const { data, isLoading } = useCustomers({ search: search || undefined, page, per_page: 15 });
+  const { data, isLoading } = useCustomers({ search: search || undefined, page, per_page: perPage });
   const deleteCustomer = useDeleteCustomer();
 
   const handleDelete = async () => {
@@ -119,7 +120,14 @@ export default function CustomersPage() {
               ))}
             </div>
 
-            <Pagination meta={data.meta} onPageChange={setPage} />
+            <Pagination
+              meta={data.meta}
+              onPageChange={setPage}
+              onPerPageChange={(value) => {
+                setPerPage(value);
+                setPage(1);
+              }}
+            />
           </>
         )}
       </div>

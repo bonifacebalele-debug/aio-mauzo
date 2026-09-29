@@ -26,6 +26,7 @@ export default function ExpensesPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
   const [pendingDelete, setPendingDelete] = useState<Expense | null>(null);
   const [downloading, setDownloading] = useState<"csv" | "xlsx" | "pdf" | null>(null);
 
@@ -43,7 +44,7 @@ export default function ExpensesPage() {
     date_to: dateTo || undefined,
   };
 
-  const { data, isLoading } = useExpenses({ ...filters, page, per_page: 15 });
+  const { data, isLoading } = useExpenses({ ...filters, page, per_page: perPage });
   const { data: summary, isLoading: summaryLoading } = useExpenseSummary(filters);
   const { data: categories } = useExpenseCategories();
   const deleteExpense = useDeleteExpense();
@@ -259,7 +260,14 @@ export default function ExpensesPage() {
               ))}
             </div>
 
-            <Pagination meta={data.meta} onPageChange={setPage} />
+            <Pagination
+              meta={data.meta}
+              onPageChange={setPage}
+              onPerPageChange={(value) => {
+                setPerPage(value);
+                setPage(1);
+              }}
+            />
           </>
         )}
       </div>
