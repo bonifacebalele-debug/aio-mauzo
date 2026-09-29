@@ -1,4 +1,5 @@
-import { API_URL, apiClient } from "./client";
+import { apiClient } from "./client";
+import { downloadBlob, filenameFromContentDisposition } from "@/lib/utils/download";
 import type { PeriodSummaryPoint, ReportResponse, ReportType } from "./types";
 
 export interface ReportFilters {
@@ -20,8 +21,26 @@ export async function fetchPeriodSummary(period: "monthly" | "yearly", year: num
   return data.data;
 }
 
-export function getReportExportUrl(type: ReportType, format: "pdf" | "csv" | "xlsx", filters: ReportFilters = {}): string {
-  const params = new URLSearchParams({ format, ...filters } as Record<string, string>);
+/**
+ * Downloads a report export via an authenticated XHR request rather than a
+ * plain `<a href>` navigation. A direct navigation to the API domain drops
+ * the Referer header (our export links use rel="noopener noreferrer"),
+ * which Sanctum relies on to recognize the request as coming from the SPA
+ * and treat the session cookie as valid — without it the request looks
+ * unauthenticated even though the user is logged in. Fetching the file
+ * through the same axios client used everywhere else sidesteps that
+ * entirely, since it already reliably carries the session.
+ */
+export async function downloadReportExport(
+  type: ReportType,
+  format: "pdf" | "csv" | "xlsx",
+  filters: ReportFilters = {},
+): Promise<void> {
+  const response = await apiClient.get(`/reports/${type}/export`, {
+    params: { format, ...filters },
+    responseType: "blob",
+  });
 
-  return `${API_URL}/api/reports/${type}/export?${params.toString()}`;
+  const fallback = `${type}-report.${format}`;
+  downloadBlob(response.data, filenameFromContentDisposition(response.headers["content-disposition"], fallback));
 }
