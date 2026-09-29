@@ -10,6 +10,7 @@ import { ReportTable } from "@/features/reports/ReportTable";
 import { useReport } from "@/features/reports/hooks";
 import { getReportExportUrl } from "@/lib/api/reports";
 import { cn } from "@/lib/utils/cn";
+import { useAuthStore } from "@/store/auth-store";
 import type { ReportType } from "@/lib/api/types";
 
 const REPORT_TABS: { key: ReportType; label: string; usesDateRange: boolean }[] = [
@@ -24,6 +25,8 @@ export default function ReportsPage() {
   const [type, setType] = useState<ReportType>("sales");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+
+  const canExport = useAuthStore((s) => s.hasPermission("reports.export"));
 
   const activeTab = REPORT_TABS.find((t) => t.key === type)!;
   const filters = activeTab.usesDateRange ? { from: from || undefined, to: to || undefined } : {};
@@ -66,32 +69,34 @@ export default function ReportsPage() {
               )}
             </div>
 
-            <div className="flex gap-2">
-              <a
-                href={getReportExportUrl(type, "csv", filters)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
-              >
-                <Download className="h-4 w-4" /> CSV
-              </a>
-              <a
-                href={getReportExportUrl(type, "xlsx", filters)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
-              >
-                <FileSpreadsheet className="h-4 w-4" /> Excel
-              </a>
-              <a
-                href={getReportExportUrl(type, "pdf", filters)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
-              >
-                <FileText className="h-4 w-4" /> PDF
-              </a>
-            </div>
+            {canExport && (
+              <div className="flex gap-2">
+                <a
+                  href={getReportExportUrl(type, "csv", filters)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+                >
+                  <Download className="h-4 w-4" /> CSV
+                </a>
+                <a
+                  href={getReportExportUrl(type, "xlsx", filters)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+                >
+                  <FileSpreadsheet className="h-4 w-4" /> Excel
+                </a>
+                <a
+                  href={getReportExportUrl(type, "pdf", filters)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+                >
+                  <FileText className="h-4 w-4" /> PDF
+                </a>
+              </div>
+            )}
           </div>
 
           <ReportTable report={report} isLoading={isLoading} />

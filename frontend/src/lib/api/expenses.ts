@@ -1,4 +1,4 @@
-import { apiClient } from "./client";
+import { API_URL, apiClient } from "./client";
 import type {
   ApiResponse,
   Expense,
@@ -107,4 +107,19 @@ export async function createExpenseCategory(name: string): Promise<ExpenseCatego
   const { data } = await apiClient.post<ApiResponse<ExpenseCategory>>("/expense-categories", { name });
 
   return data.data;
+}
+
+export function getExpenseExportUrl(
+  format: "pdf" | "csv" | "xlsx",
+  filters: Omit<ExpenseFilters, "page" | "per_page"> = {},
+): string {
+  const params = new URLSearchParams({
+    format,
+    ...(filters.search ? { search: filters.search } : {}),
+    ...(filters.category_id ? { category_id: String(filters.category_id) } : {}),
+    ...(filters.date_from ? { date_from: filters.date_from } : {}),
+    ...(filters.date_to ? { date_to: filters.date_to } : {}),
+  });
+
+  return `${API_URL}/api/expenses/export?${params.toString()}`;
 }

@@ -36,6 +36,7 @@ export interface User {
   created_at?: string;
   roles: string[];
   permissions: string[];
+  can_export_reports: boolean;
 }
 
 export interface UserPayload {
@@ -45,6 +46,7 @@ export interface UserPayload {
   password?: string;
   role: string;
   is_active?: boolean;
+  can_export_reports?: boolean;
 }
 
 export interface RequestUserPayload {

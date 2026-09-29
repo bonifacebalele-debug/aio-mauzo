@@ -1,6 +1,6 @@
 "use client";
 
-import { Banknote, Plus, Receipt, Search, Tag } from "lucide-react";
+import { Banknote, Download, FileSpreadsheet, FileText, Plus, Receipt, Search, Tag } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -14,6 +14,7 @@ import { StatCard } from "@/features/dashboard/StatCard";
 import { ExpenseCard, ExpenseTableRow } from "@/features/expenses/ExpenseRow";
 import { useDeleteExpense, useExpenseCategories, useExpenseSummary, useExpenses } from "@/features/expenses/hooks";
 import { extractErrorMessage } from "@/lib/api/client";
+import { getExpenseExportUrl } from "@/lib/api/expenses";
 import type { Expense } from "@/lib/api/types";
 import { formatMoney } from "@/lib/utils/format";
 import { useAuthStore } from "@/store/auth-store";
@@ -32,6 +33,7 @@ export default function ExpensesPage() {
   const canEdit = hasPermission("expenses.edit");
   const canDelete = hasPermission("expenses.delete");
   const canManageCategories = hasPermission("expenses.manage_categories");
+  const canExport = hasPermission("reports.export");
 
   const filters = {
     search: search || undefined,
@@ -143,6 +145,35 @@ export default function ExpensesPage() {
             setPage(1);
           }}
         />
+
+        {canExport && (
+          <div className="flex gap-2 sm:ml-auto">
+            <a
+              href={getExpenseExportUrl("csv", filters)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+            >
+              <Download className="h-4 w-4" /> CSV
+            </a>
+            <a
+              href={getExpenseExportUrl("xlsx", filters)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+            >
+              <FileSpreadsheet className="h-4 w-4" /> Excel
+            </a>
+            <a
+              href={getExpenseExportUrl("pdf", filters)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+            >
+              <FileText className="h-4 w-4" /> PDF
+            </a>
+          </div>
+        )}
       </div>
 
       <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)]">

@@ -17,6 +17,7 @@ const schema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters").optional().or(z.literal("")),
   role: z.string().min(1, "Select a role"),
   is_active: z.boolean(),
+  can_export_reports: z.boolean(),
 });
 
 export type UserFormValues = z.infer<typeof schema>;
@@ -41,6 +42,7 @@ export function UserForm({
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<UserFormValues>({
     resolver: zodResolver(schema),
@@ -51,8 +53,12 @@ export function UserForm({
       password: "",
       role: defaultValues?.roles?.[0] ?? "",
       is_active: defaultValues?.is_active ?? true,
+      can_export_reports: defaultValues?.can_export_reports ?? false,
     },
   });
+
+  const selectedRole = watch("role");
+  const isAdministratorRole = selectedRole === "Administrator";
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -114,6 +120,26 @@ export function UserForm({
             </Label>
           </div>
         )}
+
+        <div className="sm:col-span-2">
+          <div className="flex items-center gap-2">
+            <input
+              id="can_export_reports"
+              type="checkbox"
+              disabled={isAdministratorRole}
+              className="h-4 w-4 rounded border-[var(--border)] accent-[var(--color-primary)] disabled:opacity-60"
+              {...register("can_export_reports")}
+            />
+            <Label htmlFor="can_export_reports" className="mb-0 normal-case tracking-normal">
+              Can download reports &amp; expenses
+            </Label>
+          </div>
+          <p className="mt-1 text-xs text-foreground-faint">
+            {isAdministratorRole
+              ? "Administrators can always download reports and expenses."
+              : "Lets this person download CSV/Excel/PDF exports from the Reports and Expenses pages, regardless of their role."}
+          </p>
+        </div>
       </div>
 
       <div className="flex justify-end">
