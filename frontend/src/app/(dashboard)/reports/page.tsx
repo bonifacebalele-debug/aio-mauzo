@@ -1,11 +1,12 @@
 "use client";
 
 import { Download, FileSpreadsheet, FileText } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Label } from "@/components/ui/Input";
+import { Pagination } from "@/components/ui/Pagination";
 import { ReportTable } from "@/features/reports/ReportTable";
 import { useReport } from "@/features/reports/hooks";
 import { downloadReportExport } from "@/lib/api/reports";
@@ -28,12 +29,26 @@ export default function ReportsPage() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [downloading, setDownloading] = useState<"csv" | "xlsx" | "pdf" | null>(null);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
 
   const canExport = useAuthStore((s) => s.hasPermission("reports.export"));
 
   const activeTab = REPORT_TABS.find((t) => t.key === type)!;
   const filters = activeTab.usesDateRange ? { from: from || undefined, to: to || undefined } : {};
   const { data: report, isLoading } = useReport(type, filters);
+
+  // The API returns the full matching row set for a report (it isn't paginated
+  // server-side — export needs the whole range regardless of what's on screen),
+  // so "per page" here just slices the already-fetched rows for display.
+  const total = report?.data.length ?? 0;
+  const lastPage = Math.max(1, Math.ceil(total / perPage));
+  const currentPage = Math.min(page, lastPage);
+  const pagedReport = useMemo(() => {
+    if (!report) return report;
+    const start = (currentPage - 1) * perPage;
+    return { ...report, data: report.data.slice(start, start + perPage) };
+  }, [report, currentPage, perPage]);
 
   const handleExport = async (format: "csv" | "xlsx" | "pdf") => {
     setDownloading(format);
@@ -54,7 +69,10 @@ export default function ReportsPage() {
         {REPORT_TABS.map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setType(tab.key)}
+            onClick={() => {
+              setType(tab.key);
+              setPage(1);
+            }}
             className={cn(
               "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
               type === tab.key ? "bg-primary text-primary-foreground" : "text-foreground-muted hover:text-foreground",
@@ -73,11 +91,27 @@ export default function ReportsPage() {
                 <>
                   <div>
                     <Label htmlFor="from">From</Label>
-                    <Input id="from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+                    <Input
+                      id="from"
+                      type="date"
+                      value={from}
+                      onChange={(e) => {
+                        setFrom(e.target.value);
+                        setPage(1);
+                      }}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="to">To</Label>
-                    <Input id="to" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+                    <Input
+                      id="to"
+                      type="date"
+                      value={to}
+                      onChange={(e) => {
+                        setTo(e.target.value);
+                        setPage(1);
+                      }}
+                    />
                   </div>
                 </>
               )}
@@ -122,8 +156,19 @@ export default function ReportsPage() {
             )}
           </div>
 
-          <ReportTable report={report} isLoading={isLoading} />
+          <ReportTable report={pagedReport} isLoading={isLoading} />
         </CardContent>
+
+        {!isLoading && total > 0 && (
+          <Pagination
+            meta={{ current_page: currentPage, last_page: lastPage, per_page: perPage, total }}
+            onPageChange={setPage}
+            onPerPageChange={(value) => {
+              setPerPage(value);
+              setPage(1);
+            }}
+          />
+        )}
       </Card>
     </div>
   );
