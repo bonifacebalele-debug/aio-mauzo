@@ -14,16 +14,29 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export type UserStatus = "active" | "pending" | "awaiting_verification" | "rejected";
+
 export interface User {
   id: number;
   name: string;
   email: string;
   phone: string | null;
   avatar_url: string | null;
+  signature_url: string | null;
   is_active: boolean;
+  status: UserStatus;
+  needs_password: boolean;
+  invited_by?: string | null;
+  approved_by?: string | null;
+  approved_at: string | null;
+  rejected_by?: string | null;
+  rejected_at: string | null;
+  rejection_reason: string | null;
   last_login_at: string | null;
+  created_at?: string;
   roles: string[];
   permissions: string[];
+  can_export_reports: boolean;
 }
 
 export interface UserPayload {
@@ -33,6 +46,38 @@ export interface UserPayload {
   password?: string;
   role: string;
   is_active?: boolean;
+  can_export_reports?: boolean;
+}
+
+export interface RequestUserPayload {
+  name: string;
+  email: string;
+  phone?: string;
+  role: string;
+}
+
+export interface ApproveUserPayload {
+  role?: string;
+}
+
+export interface RejectUserPayload {
+  reason?: string;
+}
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  phone?: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export interface VerifyUserPayload {
+  uid: number;
+  expires: number;
+  token: string;
+  password?: string;
+  password_confirmation?: string;
 }
 
 export interface Customer {
@@ -106,6 +151,56 @@ export interface Currency {
   is_default: boolean;
 }
 
+export interface ExpenseCategory {
+  id: number;
+  name: string;
+  is_active: boolean;
+}
+
+export interface Expense {
+  id: number;
+  category: ExpenseCategory;
+  currency: Currency;
+  amount: number;
+  expense_date: string;
+  vendor: string | null;
+  description: string | null;
+  receipt_url: string | null;
+  recorded_by: { id: number; name: string } | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExpensePayload {
+  expense_category_id: number;
+  currency_id: number;
+  amount: number;
+  expense_date: string;
+  vendor?: string;
+  description?: string;
+  receipt?: File | null;
+  remove_receipt?: boolean;
+}
+
+export interface ExpenseCurrencyTotal {
+  currency_code: string;
+  currency_symbol: string;
+  total: number;
+  count: number;
+}
+
+export interface ExpenseCategoryTotal {
+  category_id: number;
+  category_name: string;
+  total: number;
+  count: number;
+}
+
+export interface ExpenseSummary {
+  by_currency: ExpenseCurrencyTotal[];
+  by_category: ExpenseCategoryTotal[];
+}
+
 export interface Tax {
   id: number;
   name: string;
@@ -153,6 +248,7 @@ export interface Invoice {
   status_label: string;
   subtotal: number;
   discount_total: number;
+  shipping_cost: number;
   tax_total: number;
   grand_total: number;
   amount_paid: number;
@@ -164,6 +260,7 @@ export interface Invoice {
   sent_at: string | null;
   viewed_at: string | null;
   paid_at: string | null;
+  creator_signature_url: string | null;
   customer: Customer;
   currency: Currency;
   items: InvoiceItem[];
@@ -179,6 +276,8 @@ export interface InvoicePayload {
   due_date?: string | null;
   notes?: string | null;
   terms?: string | null;
+  amount_paid?: number;
+  shipping_cost?: number;
   items: InvoiceItemPayload[];
 }
 
@@ -341,4 +440,50 @@ export interface Company {
   invoice_prefix: string;
   invoice_number_format: string;
   bank_accounts?: CompanyBankAccount[];
+}
+
+export interface ChatUser {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface ConversationParticipant {
+  id: number;
+  name: string;
+}
+
+export interface ConversationLastMessage {
+  body: string;
+  sender_name: string | null;
+  created_at: string;
+}
+
+export interface Conversation {
+  id: number;
+  is_group: boolean;
+  name: string;
+  participants: ConversationParticipant[];
+  last_message: ConversationLastMessage | null;
+  unread_count: number;
+  updated_at: string;
+}
+
+export interface ChatMessage {
+  id: number;
+  conversation_id: number;
+  body: string;
+  sender: { id: number | null; name: string | null };
+  is_mine: boolean;
+  created_at: string;
+}
+
+export interface NotificationItem {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  link: string | null;
+  read_at: string | null;
+  created_at: string;
 }
