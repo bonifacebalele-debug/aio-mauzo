@@ -1,13 +1,13 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut, Receipt } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { usePendingIntakeCount } from "@/features/customers/hooks";
 import { logout } from "@/lib/api/auth";
 import { cn } from "@/lib/utils/cn";
 import { useAuthStore } from "@/store/auth-store";
 import { NAV_ITEMS } from "./nav-items";
-import { NotificationBell } from "./NotificationBell";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -15,6 +15,15 @@ export function Sidebar() {
   const user = useAuthStore((s) => s.user);
   const hasPermission = useAuthStore((s) => s.hasPermission);
   const setUser = useAuthStore((s) => s.setUser);
+  const { data: pendingCount } = usePendingIntakeCount();
+
+  const visibleItems = NAV_ITEMS.filter((item) => !item.permission || hasPermission(item.permission));
+
+  // Pick the single longest-matching href so a nested route (e.g.
+  // /customers/requests) doesn't also light up its parent (/customers).
+  const activeHref = [...visibleItems]
+    .filter((item) => pathname.startsWith(item.href))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   const handleLogout = async () => {
     await logout();
@@ -24,21 +33,20 @@ export function Sidebar() {
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] lg:flex">
-      <div className="flex h-16 items-center justify-between gap-2.5 px-6">
-        <div className="flex items-center gap-2.5">
-          {/* eslint-disable-next-line @next/next/no-img-element -- small fixed-size brand mark, next/image is overkill */}
-          <img src="/logo.png" alt="AIO Invoice" className="h-9 w-9 shrink-0 object-contain" />
-          <div>
-            <p className="text-sm font-semibold leading-tight">AIO Invoice</p>
-            <p className="text-xs text-foreground-faint leading-tight">AIO Technologies</p>
-          </div>
+      <div className="flex h-16 items-center gap-2.5 px-6">
+        <div className="flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] bg-primary text-primary-foreground">
+          <Receipt className="h-5 w-5" />
         </div>
-        <NotificationBell />
+        <div>
+          <p className="text-sm font-semibold leading-tight">AIO Invoice</p>
+          <p className="text-xs text-foreground-faint leading-tight">AIO Technologies</p>
+        </div>
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {NAV_ITEMS.filter((item) => !item.permission || hasPermission(item.permission)).map((item) => {
-          const active = pathname.startsWith(item.href);
+        {visibleItems.map((item) => {
+          const active = item.href === activeHref;
+          const badgeCount = item.badge === "pendingIntakes" ? pendingCount : undefined;
 
           return (
             <Link
@@ -52,7 +60,12 @@ export function Sidebar() {
               )}
             >
               <item.icon className="h-4.5 w-4.5" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {!!badgeCount && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--danger)] px-1.5 text-[11px] font-semibold text-white">
+                  {badgeCount}
+                </span>
+              )}
             </Link>
           );
         })}

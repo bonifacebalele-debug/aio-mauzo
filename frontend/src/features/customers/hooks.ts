@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  approveCustomerIntake,
+  fetchCustomerIntakes,
+  fetchPendingIntakeCount,
+  rejectCustomerIntake,
+  type CustomerIntakeFilters,
+} from "@/lib/api/customerIntakes";
+import {
   createCustomer,
   deleteCustomer,
   fetchCustomer,
@@ -67,5 +74,42 @@ export function useDeleteCustomer() {
   return useMutation({
     mutationFn: (id: number) => deleteCustomer(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["customers"] }),
+  });
+}
+
+export function useCustomerIntakes(filters: CustomerIntakeFilters) {
+  return useQuery({
+    queryKey: ["customer-intakes", filters],
+    queryFn: () => fetchCustomerIntakes(filters),
+    placeholderData: (prev) => prev,
+  });
+}
+
+export function usePendingIntakeCount() {
+  return useQuery({
+    queryKey: ["customer-intakes", "pending-count"],
+    queryFn: fetchPendingIntakeCount,
+    refetchInterval: 30_000,
+  });
+}
+
+export function useApproveCustomerIntake() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => approveCustomerIntake(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customer-intakes"] });
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+    },
+  });
+}
+
+export function useRejectCustomerIntake() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: number; reason?: string }) => rejectCustomerIntake(id, reason),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["customer-intakes"] }),
   });
 }
