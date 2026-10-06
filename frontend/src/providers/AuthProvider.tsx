@@ -10,7 +10,7 @@ import { useAuthStore } from "@/store/auth-store";
 // GET /api/user on one of these is expected (the visitor isn't logged in
 // yet) and must NOT bounce them away — that was cutting people off from
 // /verify-account and /register before they could finish the form.
-const PUBLIC_PATHS = ["/login", "/register", "/verify-account"];
+const PUBLIC_PATHS = ["/login", "/register", "/verify-account", "/request"];
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
