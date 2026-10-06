@@ -17,6 +17,7 @@ import { use, useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { StatusPill } from "@/components/ui/StatusPill";
+import { DeliveryNoteCard } from "@/features/invoices/DeliveryNoteCard";
 import { InvoicePrintPreview } from "@/features/invoices/InvoicePrintPreview";
 import { SendEmailModal } from "@/features/invoices/SendEmailModal";
 import { StatusActions } from "@/features/invoices/StatusActions";
@@ -166,6 +167,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       </div>
 
       <InvoicePrintPreview invoice={invoice} company={company} />
+
+      <DeliveryNoteCard invoice={invoice} canManage={hasPermission("invoices.manage_status")} />
 
       <ConfirmDialog
         open={confirmDelete}

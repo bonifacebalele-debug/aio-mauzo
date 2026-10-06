@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { generateDeliveryNote, markDeliveryNoteDelivered } from "@/lib/api/deliveryNotes";
 import {
   createInvoice,
   deleteInvoice,
@@ -112,5 +113,24 @@ export function useSendInvoiceEmail(id: number) {
       queryClient.invalidateQueries({ queryKey: ["invoices", id, "emails"] });
       queryClient.invalidateQueries({ queryKey: ["invoices", id] });
     },
+  });
+}
+
+export function useGenerateDeliveryNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (invoiceId: number) => generateDeliveryNote(invoiceId),
+    onSuccess: (_, invoiceId) => queryClient.invalidateQueries({ queryKey: ["invoices", invoiceId] }),
+  });
+}
+
+export function useMarkDeliveryNoteDelivered(invoiceId: number) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ deliveryNoteId, receivedByName }: { deliveryNoteId: number; receivedByName?: string }) =>
+      markDeliveryNoteDelivered(deliveryNoteId, receivedByName),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["invoices", invoiceId] }),
   });
 }

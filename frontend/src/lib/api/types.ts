@@ -238,6 +238,20 @@ export interface InvoiceItemPayload {
   tax_rate: number;
 }
 
+export type DeliveryNoteStatus = "pending" | "delivered";
+
+export interface DeliveryNote {
+  id: number;
+  delivery_note_number: string;
+  status: DeliveryNoteStatus;
+  status_label: string;
+  notes: string | null;
+  received_by_name: string | null;
+  delivered_by_name?: string | null;
+  delivered_at: string | null;
+  created_at: string;
+}
+
 export interface Invoice {
   id: number;
   invoice_number: string;
@@ -261,6 +275,7 @@ export interface Invoice {
   viewed_at: string | null;
   paid_at: string | null;
   creator_signature_url: string | null;
+  delivery_note: DeliveryNote | null;
   customer: Customer;
   currency: Currency;
   items: InvoiceItem[];
