@@ -4,6 +4,7 @@ import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { usePendingIntakeCount } from "@/features/customers/hooks";
+import { useLowStockCount } from "@/features/inventory/hooks";
 import { logout } from "@/lib/api/auth";
 import { cn } from "@/lib/utils/cn";
 import { useAuthStore } from "@/store/auth-store";
@@ -17,6 +18,7 @@ export function Sidebar() {
   const hasPermission = useAuthStore((s) => s.hasPermission);
   const setUser = useAuthStore((s) => s.setUser);
   const { data: pendingCount } = usePendingIntakeCount();
+  const { data: lowStockCount } = useLowStockCount();
 
   const visibleItems = NAV_ITEMS.filter((item) => !item.permission || hasPermission(item.permission));
 
@@ -49,7 +51,8 @@ export function Sidebar() {
       <nav className="flex-1 space-y-1 px-3 py-4">
         {visibleItems.map((item) => {
           const active = item.href === activeHref;
-          const badgeCount = item.badge === "pendingIntakes" ? pendingCount : undefined;
+          const badgeCount =
+            item.badge === "pendingIntakes" ? pendingCount : item.badge === "lowStock" ? lowStockCount : undefined;
 
           return (
             <Link

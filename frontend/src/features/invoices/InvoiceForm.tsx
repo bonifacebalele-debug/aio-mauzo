@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { FadedTextarea } from "@/components/ui/FadedTextarea";
 import { FieldError, Input, Label, Select, Textarea } from "@/components/ui/Input";
 import { CustomerCombobox } from "@/features/customers/CustomerCombobox";
+import { useProducts } from "@/features/inventory/hooks";
 import type { Customer, Invoice } from "@/lib/api/types";
 import { calculateInvoice } from "@/lib/utils/calculations";
 import { formatMoney } from "@/lib/utils/format";
@@ -24,6 +25,7 @@ const itemSchema = z.object({
   discount_value: z.number().min(0),
   tax_id: z.number().nullable(),
   tax_rate: z.number().min(0).max(100),
+  product_id: z.number().nullable(),
 });
 
 const schema = z.object({
@@ -57,12 +59,14 @@ function emptyItem() {
     discount_value: 0,
     tax_id: null,
     tax_rate: 0,
+    product_id: null,
   };
 }
 
 export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoice" }: InvoiceFormProps) {
   const { data: currencies } = useCurrencies();
   const { data: taxes } = useTaxes();
+  const { data: products } = useProducts({ is_active: true, per_page: 200 });
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(defaultValues?.customer ?? null);
 
   const {
@@ -94,6 +98,7 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
           discount_value: item.discount_value,
           tax_id: item.tax_id,
           tax_rate: item.tax_rate,
+          product_id: item.product_id,
         })) ?? [emptyItem()],
     },
   });
@@ -218,6 +223,45 @@ export function InvoiceForm({ defaultValues, onSubmit, submitLabel = "Save invoi
 
               return (
                 <div key={field.id} className="rounded-[var(--radius-md)] border border-[var(--border)] p-3">
+                  <div className="mb-3">
+                    <Label>Product (optional)</Label>
+                    <Controller
+                      control={control}
+                      name={`items.${index}.product_id`}
+                      render={({ field: productField }) => (
+                        <Select
+                          value={productField.value ?? ""}
+                          onChange={(e) => {
+                            const rawValue = e.target.value;
+                            if (rawValue === "") {
+                              productField.onChange(null);
+                              return;
+                            }
+                            const product = products?.data.find((p) => p.id === Number(rawValue));
+                            if (!product) return;
+                            productField.onChange(product.id);
+                            setValue(`items.${index}.description`, product.name, { shouldValidate: true });
+                            setValue(`items.${index}.unit`, product.unit, { shouldValidate: true });
+                            if (product.selling_price !== null) {
+                              setValue(`items.${index}.unit_price`, product.selling_price, { shouldValidate: true });
+                            }
+                          }}
+                        >
+                          <option value="">Custom line item (not tracked in stock)</option>
+                          {products?.data.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} {p.sku ? `(${p.sku})` : ""} — {p.quantity_on_hand} {p.unit} on hand
+                            </option>
+                          ))}
+                        </Select>
+                      )}
+                    />
+                    <p className="mt-1 text-xs text-foreground-faint">
+                      Picking a product fills in the fields below and links this line to stock — it will be deducted
+                      once the delivery note for this invoice is marked delivered. Leave as a custom item for
+                      services or anything not in the catalog.
+                    </p>
+                  </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
                     <div className="sm:col-span-5">
                       <Label>Description</Label>

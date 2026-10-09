@@ -220,6 +220,7 @@ export interface InvoiceItem {
   discount_value: number;
   tax_id: number | null;
   tax_rate: number;
+  product_id: number | null;
   subtotal: number;
   discount_amount: number;
   tax_amount: number;
@@ -236,6 +237,59 @@ export interface InvoiceItemPayload {
   discount_value: number;
   tax_id: number | null;
   tax_rate: number;
+  product_id?: number | null;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  sku: string | null;
+  unit: string;
+  description: string | null;
+  cost_price: number | null;
+  selling_price: number | null;
+  quantity_on_hand: number;
+  reorder_level: number;
+  is_low_stock: boolean;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface ProductPayload {
+  name: string;
+  sku?: string | null;
+  unit?: string;
+  description?: string | null;
+  cost_price?: number | null;
+  selling_price?: number | null;
+  reorder_level?: number;
+  is_active?: boolean;
+}
+
+export type StockMovementType = "stock_in" | "sale" | "adjustment";
+
+export interface StockMovement {
+  id: number;
+  type: StockMovementType;
+  type_label: string;
+  quantity: number;
+  unit_cost: number | null;
+  supplier_name: string | null;
+  notes: string | null;
+  created_by_name?: string | null;
+  created_at: string;
+}
+
+export interface StockInPayload {
+  quantity: number;
+  unit_cost?: number | null;
+  supplier_name?: string | null;
+  notes?: string | null;
+}
+
+export interface AdjustStockPayload {
+  quantity: number;
+  notes: string;
 }
 
 export type DeliveryNoteStatus = "pending" | "delivered";

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { usePendingIntakeCount } from "@/features/customers/hooks";
+import { useLowStockCount } from "@/features/inventory/hooks";
 import { cn } from "@/lib/utils/cn";
 import { useAuthStore } from "@/store/auth-store";
 import { NAV_ITEMS } from "./nav-items";
@@ -12,6 +13,7 @@ export function BottomNav() {
   const hasPermission = useAuthStore((s) => s.hasPermission);
   const items = NAV_ITEMS.filter((item) => !item.permission || hasPermission(item.permission));
   const { data: pendingCount } = usePendingIntakeCount();
+  const { data: lowStockCount } = useLowStockCount();
 
   // Pick the single longest-matching href so a nested route (e.g.
   // /customers/requests) doesn't also light up its parent (/customers).
@@ -23,7 +25,8 @@ export function BottomNav() {
     <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-lg lg:hidden pb-[env(safe-area-inset-bottom)]">
       {items.map((item) => {
         const active = item.href === activeHref;
-        const showDot = item.badge === "pendingIntakes" && !!pendingCount;
+        const showDot =
+          (item.badge === "pendingIntakes" && !!pendingCount) || (item.badge === "lowStock" && !!lowStockCount);
 
         return (
           <Link

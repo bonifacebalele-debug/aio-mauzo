@@ -1,6 +1,7 @@
 import {
   Activity,
   BarChart3,
+  Boxes,
   FileText,
   Inbox,
   LayoutDashboard,
@@ -18,7 +19,7 @@ export interface NavItem {
   href: string;
   icon: LucideIcon;
   permission?: string;
-  badge?: "pendingIntakes";
+  badge?: "pendingIntakes" | "lowStock";
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -33,6 +34,13 @@ export const NAV_ITEMS: NavItem[] = [
     badge: "pendingIntakes",
   },
   { label: "Invoices", href: "/invoices", icon: FileText, permission: "invoices.view" },
+  {
+    label: "Inventory",
+    href: "/inventory",
+    icon: Boxes,
+    permission: "inventory.view",
+    badge: "lowStock",
+  },
   { label: "Expenses", href: "/expenses", icon: Receipt, permission: "expenses.view" },
   { label: "Reports", href: "/reports", icon: BarChart3, permission: "reports.view" },
   { label: "Activity", href: "/activity", icon: Activity, permission: "users.view" },
