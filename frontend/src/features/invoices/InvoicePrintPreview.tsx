@@ -167,38 +167,43 @@ export function InvoicePrintPreview({ invoice, company }: { invoice: Invoice; co
         </div>
       </div>
 
-      {(notes || invoice.terms) && (
-        <div className="mt-8 grid grid-cols-2 gap-6 border-t border-gray-200 pt-4 text-xs text-gray-500">
-          {notes && (
-            <div>
-              <p className="font-semibold uppercase text-gray-400">Notes</p>
-              <p className="mt-1 whitespace-pre-line">{notes}</p>
-            </div>
-          )}
-          {invoice.terms && (
-            <div>
-              <p className="font-semibold uppercase text-gray-400">Terms</p>
-              <p className="mt-1 whitespace-pre-line">{invoice.terms}</p>
+      {(notes || invoice.terms || (company?.stamp_enabled && company.stamp_url)) && (
+        <div className="mt-8 flex items-start justify-between gap-8 border-t border-gray-200 pt-4 text-xs text-gray-500">
+          <div className="flex-1 space-y-4">
+            {notes && (
+              <div>
+                <p className="font-semibold uppercase text-gray-400">Notes</p>
+                <p className="mt-1 whitespace-pre-line">{notes}</p>
+              </div>
+            )}
+            {invoice.terms && (
+              <div>
+                <p className="font-semibold uppercase text-gray-400">Terms</p>
+                <p className="mt-1 whitespace-pre-line">{invoice.terms}</p>
+              </div>
+            )}
+          </div>
+          {company?.stamp_enabled && company.stamp_url && (
+            <div className="shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element -- server-hosted branding asset */}
+              <img
+                src={company.stamp_url}
+                alt="Company stamp"
+                style={{
+                  width: company.stamp_width,
+                  transform: `rotate(${company.stamp_rotation}deg)`,
+                  opacity: company.stamp_opacity / 100,
+                }}
+                className="object-contain"
+              />
             </div>
           )}
         </div>
       )}
 
-      {company?.stamp_enabled && company.stamp_url && (
-        <div className="mt-10 flex items-end justify-end gap-8 border-t border-gray-100 pt-6">
-          {/* eslint-disable-next-line @next/next/no-img-element -- server-hosted branding asset */}
-          <img
-            src={company.stamp_url}
-            alt="Company stamp"
-            style={{
-              width: company.stamp_width,
-              transform: `rotate(${company.stamp_rotation}deg)`,
-              opacity: company.stamp_opacity / 100,
-            }}
-            className="object-contain"
-          />
-        </div>
-      )}
+      <p className="mt-6 border-t border-gray-100 pt-4 text-xs font-medium text-gray-600">
+        Please make payment before the due date.
+      </p>
     </div>
   );
 }
