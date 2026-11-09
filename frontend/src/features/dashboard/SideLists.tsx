@@ -30,7 +30,7 @@ export function LatestCustomersCard({ filters }: DashboardCardProps) {
           data.map((c) => (
             <Link
               key={c.id}
-              href={`/customers/${c.id}/edit`}
+              href={`/customers/${c.id}`}
               className="flex items-center justify-between rounded-[var(--radius-sm)] px-2 py-1.5 -mx-2 transition-colors hover:bg-[var(--neutral-bg)]"
             >
               <div className="min-w-0">
