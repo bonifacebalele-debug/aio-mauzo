@@ -15,7 +15,7 @@ export function CustomerTableRow({ customer, onDelete, canDelete }: CustomerRowP
   return (
     <tr className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--neutral-bg)]/60">
       <td className="px-4 py-3">
-        <Link href={`/customers/${customer.id}/edit`} className="font-medium text-foreground hover:text-primary">
+        <Link href={`/customers/${customer.id}`} className="font-medium text-foreground hover:text-primary">
           {customer.company_name}
         </Link>
         <p className="text-xs text-foreground-faint">{customer.contact_person}</p>
@@ -45,7 +45,7 @@ export function CustomerCard({ customer, onDelete, canDelete }: CustomerRowProps
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4">
       <div className="flex items-start justify-between gap-2">
-        <Link href={`/customers/${customer.id}/edit`} className="min-w-0">
+        <Link href={`/customers/${customer.id}`} className="min-w-0">
           <p className="truncate font-medium">{customer.company_name}</p>
           <p className="truncate text-xs text-foreground-faint">{customer.contact_person}</p>
         </Link>

@@ -95,13 +95,44 @@ export interface Customer {
   notes: string | null;
   is_active: boolean;
   invoices_count?: number;
+  payments_count?: number;
+  total_invoiced?: number;
+  total_paid?: number;
+  invoices?: CustomerInvoiceSummary[];
+  payments?: CustomerPaymentSummary[];
   created_at: string;
   updated_at: string;
 }
 
+export interface CustomerInvoiceSummary {
+  id: number;
+  invoice_number: string;
+  invoice_date: string;
+  status: InvoiceStatus;
+  status_label: string;
+  grand_total: number;
+  currency_symbol: string | null;
+}
+
+export interface CustomerPaymentSummary {
+  id: number;
+  amount: number;
+  payment_date: string;
+  payment_method: string | null;
+  invoice_number: string | null;
+}
+
 export type CustomerPayload = Omit<
   Customer,
-  "id" | "invoices_count" | "created_at" | "updated_at"
+  | "id"
+  | "invoices_count"
+  | "payments_count"
+  | "total_invoiced"
+  | "total_paid"
+  | "invoices"
+  | "payments"
+  | "created_at"
+  | "updated_at"
 >;
 
 export type CustomerIntakeStatus = "pending" | "approved" | "rejected";
