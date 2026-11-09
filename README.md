@@ -2,7 +2,7 @@
 
 Invoice management system for AIO Technologies — customer & invoice CRUD,
 role-based access control, PDF generation via Invoice-Generator.com,
-email/WhatsApp delivery, branding, and reporting.
+email/WhatsApp delivery, branding, and reporting..
 
 ## Stack
 
