@@ -39,6 +39,13 @@ export function InvoicePrintPreview({ invoice, company }: { invoice: Invoice; co
   const bankDetails = company?.payment_instructions ? `BANK DETAILS:\n${company.payment_instructions}` : null;
   const notes = [invoice.notes, bankDetails].filter(Boolean).join("\n\n");
 
+  // Show the rate next to "VAT" (e.g. "VAT (18%)") when every taxed item on
+  // the invoice shares one rate — the common case. Falls back to a plain
+  // "VAT" label if items use different rates, so we never show a number
+  // that doesn't actually apply to the whole invoice.
+  const taxRates = Array.from(new Set(invoice.items.map((item) => item.tax_rate).filter((rate) => rate > 0)));
+  const vatLabel = taxRates.length === 1 ? `VAT (${taxRates[0]}%)` : "VAT";
+
   return (
     <div
       id="invoice-print-area"
@@ -125,7 +132,7 @@ export function InvoicePrintPreview({ invoice, company }: { invoice: Invoice; co
                 </td>
                 <td className="py-2.5 px-3 text-right">{item.quantity}</td>
                 <td className="py-2.5 px-3 text-right">{formatMoney(item.unit_price, symbol)}</td>
-                <td className="py-2.5 px-3 text-right font-medium">{formatMoney(item.total, symbol)}</td>
+                <td className="py-2.5 px-3 text-right font-medium">{formatMoney(item.subtotal, symbol)}</td>
               </tr>
             );
           })}
@@ -151,7 +158,7 @@ export function InvoicePrintPreview({ invoice, company }: { invoice: Invoice; co
             </div>
           )}
           <div className="flex justify-between text-gray-600">
-            <span>VAT</span>
+            <span>{vatLabel}</span>
             <span>{formatMoney(invoice.tax_total, symbol)}</span>
           </div>
           <div className="flex justify-between border-t border-gray-200 pt-1.5 text-base font-bold">
