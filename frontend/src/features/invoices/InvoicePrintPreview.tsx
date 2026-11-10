@@ -64,7 +64,10 @@ export function InvoicePrintPreview({ invoice, company }: { invoice: Invoice; co
             <p className="text-lg font-bold">{company?.name ?? "AIO Technologies"}</p>
           )}
         </div>
-        <h1 className="shrink-0 text-3xl font-bold tracking-wide text-gray-700">INVOICE</h1>
+        <div className="shrink-0 text-right">
+          <h1 className="text-3xl font-bold tracking-wide text-gray-700">INVOICE</h1>
+          <p className="mt-1 text-sm text-gray-500">{invoice.invoice_number}</p>
+        </div>
       </div>
 
       <div className="mt-6 flex items-start justify-between gap-6 border-b border-gray-200 pb-6">
